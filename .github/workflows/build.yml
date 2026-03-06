@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Update vcpkg
+        run: git -C $VCPKG_INSTALLATION_ROOT fetch && git -C $VCPKG_INSTALLATION_ROOT checkout ${{ env.BASELINE }}
+        env:
+          BASELINE: 40c0d758e1cc99a505b039a9a7e792154119c927
+
       - name: Configure
         run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
 
@@ -28,12 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: cross-platform-actions/action@v0.25.0
+      - uses: vmactions/freebsd-vm@v1
         with:
-          operating_system: freebsd
-          version: '14.2'
+          usesh: true
+          prepare: pkg install -y cmake openssl
           run: |
-            sudo pkg install -y cmake openssl
             cmake -B build
             cmake --build build
             ./build/openssl_demo
