@@ -13,19 +13,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update vcpkg
-        run: git -C $VCPKG_INSTALLATION_ROOT fetch && git -C $VCPKG_INSTALLATION_ROOT checkout ${{ env.BASELINE }}
-        env:
-          BASELINE: 40c0d758e1cc99a505b039a9a7e792154119c927
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libssl-dev
 
       - name: Configure
-        run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+        run: cmake -B build
 
       - name: Build
         run: cmake --build build
 
       - name: Run
         run: ./build/openssl_demo
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Run
+        run: ./build/Release/openssl_demo.exe
 
   build-freebsd:
     runs-on: ubuntu-latest
