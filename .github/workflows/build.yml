@@ -13,10 +13,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: lukka/run-vcpkg@v11
-
       - name: Configure
         run: cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run
+        run: ./build/openssl_demo
+
+  build-fedora:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: dnf install -y cmake gcc openssl-devel
+
+      - name: Configure
+        run: cmake -B build
 
       - name: Build
         run: cmake --build build
